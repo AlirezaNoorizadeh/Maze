@@ -100,88 +100,42 @@ void generateMaze() {
         }
     }
 
-    // Making detours = sukht masir enherafi
+
     int counter = 0;
     while (counter < 20) {
 
         do{
             currentRow = rand() % (ROW-2) +1;
             currentCol = rand() % (COL-2) +1;
-        // }while(maze[currentRow][currentCol] == PATH && currentRow < ROW-1 && currentCol < COL-1);
         }while(maze[currentRow][currentCol] != PATH);
-        // maze[x][y]
         int direction = rand() % 4;
         switch(direction) {
             case 0: // Move up
-                // if (currentRow > 1 && currentRow-1 > 1 && currentRow-2 > 1 && currentRow < ROW - 2 && currentRow-1 < ROW - 2 && currentRow-2 < ROW - 2 && maze[currentRow - 2][currentCol] == WALL && maze[currentRow - 1][currentCol] == WALL ) {
-                // if (currentCol>0 && currentCol<COL-1 && currentRow > 3 && currentRow < ROW-1 && maze[currentRow - 2][currentCol] == WALL && maze[currentRow - 1][currentCol] == WALL) {
                 if (currentRow > 3) {
                     maze[currentRow - 1][currentCol] = PATH;
                     maze[currentRow - 2][currentCol] = PATH;
-                    // currentRow -= 2;
                 }
-                // if (currentCol > 3) {
-                //     maze[currentRow - 1][currentCol] = PATH;
-                //     maze[currentRow - 2][currentCol] = PATH;
-                //     // currentRow -= 2;
-                // }
-                // if(currentRow >= ROW-4 && currentCol >= COL-4){
-                //     finisher(currentRow,currentCol) ;
-                // }
                 counter++;
                 break;
             case 1: // Move down
-                // if (currentRow > 1 && currentRow+1 > 1 && currentRow+2 > 1 && currentRow < ROW - 2 && maze[currentRow + 2][currentCol] == WALL && maze[currentRow + 1][currentCol] == WALL) {
-                // if (currentCol>0 && currentCol<COL-1 && currentRow > 0 && currentRow < ROW - 4 && maze[currentRow + 2][currentCol] == WALL && maze[currentRow + 1][currentCol] == WALL) {
                 if (currentRow < ROW-4) {
                     maze[currentRow + 1][currentCol] = PATH;
                     maze[currentRow + 2][currentCol] = PATH;
-                    // currentRow += 2;
                 }
-                // if (currentCol < ROW-4) {
-                //     maze[currentRow + 1][currentCol] = PATH;
-                //     maze[currentRow + 2][currentCol] = PATH;
-                //     // currentRow += 2;
-                // }
-                // if(currentRow >= ROW - 4 && currentCol >= COL-4){
-                //     finisher(currentRow,currentCol) ;
-                // }
                 counter++;
                 break;
             case 2: // Move left
-                // if (currentCol > 1 && currentCol < COL - 2 && maze[currentRow][currentCol - 2] == WALL && maze[currentRow][currentCol - 1] == WALL) {
-                // if (currentRow>0 && currentRow<ROW-1 && currentCol > 3 && currentCol < COL - 1 && maze[currentRow][currentCol - 2] == WALL && maze[currentRow][currentCol - 1] == WALL) {
                 if (currentCol > 3) {
                     maze[currentRow][currentCol - 1] = PATH;
                     maze[currentRow][currentCol - 2] = PATH;
-                    // currentCol -= 2;
                 }
-                // if (currentRow < COL-4) {
-                //     maze[currentRow][currentCol - 1] = PATH;
-                //     maze[currentRow][currentCol - 2] = PATH;
-                //     // currentCol -= 2;
-                // }
-                // if(currentRow >= ROW-4 && currentCol >= COL-4){
-                //     finisher(currentRow,currentCol) ;
-                // }
                 counter++;
                 break;
             case 3: // Move right
-                // if (currentCol > 1 && currentCol < COL - 2 && maze[currentRow][currentCol + 2] == WALL && maze[currentRow][currentCol + 1] == WALL) {
-                // if (currentRow>0 && currentRow<ROW-1 && currentCol > 0 && currentCol < COL - 4 && maze[currentRow][currentCol + 2] == WALL && maze[currentRow][currentCol + 1] == WALL) {
-                if (currentCol < COL-4) {
+                 if (currentCol < COL-4) {
                     maze[currentRow][currentCol + 1] = PATH;
                     maze[currentRow][currentCol + 2] = PATH;
-                    // currentCol += 2;
                 }
-                // if (currentRow > 3) {
-                //     maze[currentRow][currentCol + 1] = PATH;
-                //     maze[currentRow][currentCol + 2] = PATH;
-                //     // currentCol += 2;
-                // }
-                // if(currentRow >= ROW-4 && currentCol >= COL-4){
-                //     finisher(currentRow,currentCol) ;
-                // }
                 counter++;
                 break;
             default:cout << "hole erorr." << endl;break;
@@ -221,8 +175,6 @@ void printMaze(int currentRow, int currentCol) {
 
 int main() {
     srand(time(NULL));
-    // cout << time(0) << endl;
-    // cout << time(NULL) << endl;
     generateMaze();
     int startTime = time(0);
     int currentRow = 1;
@@ -236,7 +188,7 @@ int main() {
         
         char move;
         int arrow_key = getch();
-             if(arrow_key == 80 || arrow_key == 'x') move = 'd';
+             if(arrow_key == 80 || arrow_key == 'x' || arrow_key == 's') move = 'd';
         else if(arrow_key == 72 || arrow_key == 'w') move = 'u';
         else if(arrow_key == 77 || arrow_key == 'd') move = 'r';
         else if(arrow_key == 75 || arrow_key == 'a') move = 'l';
@@ -273,8 +225,6 @@ int main() {
                 }
                 break;
             case 'q': //u+l
-                // if (currentRow > 1 && currentCol > 1 && ((maze[currentRow-1][currentCol] != WALL && maze[currentRow-1][currentCol-1] != WALL)||(maze[currentRow][currentCol-1] != WALL && maze[currentRow-1][currentCol-1] != WALL))) {
-                // if (currentRow > 1 && currentCol > 1 && maze[currentRow-1][currentCol-1] != WALL && ((maze[currentRow-1][currentCol] != WALL)||(maze[currentRow][currentCol-1] != WALL))) {
                 if (currentRow > 1 && currentCol > 1 && maze[currentRow-1][currentCol-1] != WALL) {
                     currentRow--;
                     currentCol--;
@@ -282,8 +232,6 @@ int main() {
                 }
                 break;
             case 'e': //u+r
-                // if (currentRow > 1 && currentCol < COL - 2 && ((maze[currentRow - 1][currentCol] != WALL && maze[currentRow-1][currentCol+1] != WALL)||(maze[currentRow][currentCol+1] != WALL && maze[currentRow-1][currentCol+1] != WALL))) {
-                // if (currentRow > 1 && currentCol < COL - 2 && maze[currentRow-1][currentCol+1] != WALL && ((maze[currentRow-1][currentCol] != WALL)||(maze[currentRow][currentCol+1] != WALL))) {    
                 if (currentRow > 1 && currentCol < COL - 2 && maze[currentRow-1][currentCol+1] != WALL) {    
                     currentRow--;
                     currentCol++;
@@ -291,8 +239,6 @@ int main() {
                 }
                 break;
             case 'z': //d+l
-                // if (currentRow < ROW - 2 && currentCol > 1 && ((maze[currentRow+1][currentCol] != WALL && maze[currentRow+1][currentCol-1] != WALL)||(maze[currentRow][currentCol-1] != WALL && maze[currentRow+1][currentCol-1] != WALL))) {
-                // if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL && ((maze[currentRow+1][currentCol] != WALL)||(maze[currentRow][currentCol-1] != WALL))) {
                 if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL) {
                     currentRow++;
                     currentCol--;
@@ -300,8 +246,6 @@ int main() {
                 }
                 break;    
             case 'c': //dr
-                // if (currentRow < ROW - 2 && currentCol < COL - 2 && ((maze[currentRow-1][currentCol] != WALL && maze[currentRow-1][currentCol-1] != WALL)||(maze[currentRow][currentCol-1] != WALL && maze[currentRow-1][currentCol-1] != WALL))) {
-                // if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL && ((maze[currentRow+1][currentCol] != WALL)||(maze[currentRow][currentCol+1] != WALL))) {
                 if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL) {
                     currentRow++;
                     currentCol++;
