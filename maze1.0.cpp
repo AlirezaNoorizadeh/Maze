@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <conio.h>
+#include <algorithm>
 using namespace std;
 
 const int ROW = 15;
@@ -32,7 +33,7 @@ void generateMaze() {
             maze[i][j] = WALL;
         }
     }
-
+    boolian = 1;
     maze[1][1] = START;
     maze[13][13] = END;
 
@@ -154,6 +155,7 @@ void printMaze(int currentRow, int currentCol) {
                 switch(maze[i][j]) {
                     case WALL:
                         // system("color 3");
+                        // textcolor(RED);
                         cout << "# ";
                         break;
                     case PATH:
@@ -173,95 +175,136 @@ void printMaze(int currentRow, int currentCol) {
     }
 }
 
+struct User {
+    string name="anonymous";
+    int score=1000;
+};
+
+bool compareUsers(User a, User b) {
+    if (a.score == b.score) {
+        return a.name < b.name;
+    }
+    else {
+        return a.score < b.score;
+    }
+}
+
 int main() {
     srand(time(NULL));
-    generateMaze();
+    User list[4];
+    int order=-1;
     int startTime = time(0);
     int currentRow = 1;
     int currentCol = 1;
-    int moves =0;
-
-    while (maze[currentRow][currentCol] != END) {
+    int moves = 0;
+    char move;
+    int endTime;
+    while(1){
         system("cls");
-        system("color 24");
-        printMaze(currentRow, currentCol);
-        
-        char move;
-        int arrow_key = getch();
-             if(arrow_key == 80 || arrow_key == 'x' || arrow_key == 's') move = 'd';
-        else if(arrow_key == 72 || arrow_key == 'w') move = 'u';
-        else if(arrow_key == 77 || arrow_key == 'd') move = 'r';
-        else if(arrow_key == 75 || arrow_key == 'a') move = 'l';
-        else if(arrow_key == 'q') move = 'q'; //u+l
-        else if(arrow_key == 'e') move = 'e'; //u+r
-        else if(arrow_key == 'z') move = 'z'; //d+l
-        else if(arrow_key == 'c') move = 'c'; //d+r
+        // cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"<< endl;
+        generateMaze();
+        startTime = time(0);
+        currentRow = 1;
+        currentCol = 1;
+        moves = 0;
+        // cout << "ffffffffffffffffffffffffffffff"<< endl;
 
+        while (maze[currentRow][currentCol] != END) {
+            // fflush(stdin);
+            system("cls");
+            system("color E4");
+            printMaze(currentRow, currentCol);
+            // char move;
+            int arrow_key = getch();
+                 if(arrow_key == 80 || arrow_key == 'x' || arrow_key == 's') move = 'd';
+            else if(arrow_key == 72 || arrow_key == 'w') move = 'u';
+            else if(arrow_key == 77 || arrow_key == 'd') move = 'r';
+            else if(arrow_key == 75 || arrow_key == 'a') move = 'l';
+            else if(arrow_key == 'q') move = 'q'; //u+l
+            else if(arrow_key == 'e') move = 'e'; //u+r
+            else if(arrow_key == 'z') move = 'z'; //d+l
+            else if(arrow_key == 'c') move = 'c'; //d+r
+            fflush(stdin);
 
+            switch(move) {
+                case 'u':
+                    if (currentRow > 1 && maze[currentRow - 1][currentCol] != WALL) {
+                        currentRow--;
+                        moves++;
+                    }
+                    break;
+                case 'd':
+                    if (currentRow < ROW - 2 && maze[currentRow + 1][currentCol] != WALL) {
+                        currentRow++;
+                        moves++;
+                    }
+                    break;
+                case 'l':
+                    if (currentCol > 1 && maze[currentRow][currentCol - 1] != WALL) {
+                        currentCol--;
+                        moves++;
+                    }
+                    break;
+                case 'r':
+                    if (currentCol < COL - 2 && maze[currentRow][currentCol + 1] != WALL) {
+                        currentCol++;
+                        moves++;
+                    }
+                    break;
+                case 'q': //u+l
+                    if (currentRow > 1 && currentCol > 1 && maze[currentRow-1][currentCol-1] != WALL) {
+                        currentRow--;
+                        currentCol--;
+                        moves++;
+                    }
+                    break;
+                case 'e': //u+r
+                    if (currentRow > 1 && currentCol < COL - 2 && maze[currentRow-1][currentCol+1] != WALL) {    
+                        currentRow--;
+                        currentCol++;
+                        moves++;
+                    }
+                    break;
+                case 'z': //d+l
+                    if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL) {
+                        currentRow++;
+                        currentCol--;
+                        moves++;
+                    }
+                    break;    
+                case 'c': //dr
+                    if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL) {
+                        currentRow++;
+                        currentCol++;
+                        moves++;
+                    }
+                    break;    
 
-        switch(move) {
-            case 'u':
-                if (currentRow > 1 && maze[currentRow - 1][currentCol] != WALL) {
-                    currentRow--;
-                    moves++;
-                }
-                break;
-            case 'd':
-                if (currentRow < ROW - 2 && maze[currentRow + 1][currentCol] != WALL) {
-                    currentRow++;
-                    moves++;
-                }
-                break;
-            case 'l':
-                if (currentCol > 1 && maze[currentRow][currentCol - 1] != WALL) {
-                    currentCol--;
-                    moves++;
-                }
-                break;
-            case 'r':
-                if (currentCol < COL - 2 && maze[currentRow][currentCol + 1] != WALL) {
-                    currentCol++;
-                    moves++;
-                }
-                break;
-            case 'q': //u+l
-                if (currentRow > 1 && currentCol > 1 && maze[currentRow-1][currentCol-1] != WALL) {
-                    currentRow--;
-                    currentCol--;
-                    moves++;
-                }
-                break;
-            case 'e': //u+r
-                if (currentRow > 1 && currentCol < COL - 2 && maze[currentRow-1][currentCol+1] != WALL) {    
-                    currentRow--;
-                    currentCol++;
-                    moves++;
-                }
-                break;
-            case 'z': //d+l
-                if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL) {
-                    currentRow++;
-                    currentCol--;
-                    moves++;
-                }
-                break;    
-            case 'c': //dr
-                if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL) {
-                    currentRow++;
-                    currentCol++;
-                    moves++;
-                }
-                break;    
-
-            default:
-                cout << "Invalid move. Try again." << endl;
-            continue;
+                default:
+                    cout << "Invalid move. Try again." << endl;
+                continue;
+            }
         }
-    }
-    int endTime = time(0) - startTime;
-    system("cls");
-    printMaze(currentRow, currentCol);
-    cout << "\n**** You won this game in " << endTime << " seconds and with " << moves << " moves! ****" << endl;
 
-    return 0;
+        endTime = time(0) - startTime;
+        system("cls");
+        cout << "\n**** You won this game in " << endTime << " seconds and with " << moves << " moves! ****" << "\nPress any key to continue..."  << getch() <<endl;
+        fflush(stdin);
+        system("cls");
+        cout << "Name : ";
+        order++;
+        if(order>3)order=3;
+        cin >> list[order].name;
+        list[order].score=endTime;
+        sort(list, list + 4, compareUsers);
+        cout << "Sorted list:" << endl;
+        for (int i = 0; i < 3; i++) {
+            if(list[i].name == "anonymous" && list[i].score == 1000) cout << i+1 << ") " << endl;
+            else{cout << i+1 << ") " << list[i].name << ": " << list[i].score << endl;}
+        }
+        cout << "If you want to exit the game, press zero(0), otherwise press any key to continue...";
+        if(getch() == '0')  break;
+    }
+    system("cls");
+    cout<< "\n**********  THE END   **********\n";
 }
