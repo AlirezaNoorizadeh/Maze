@@ -4,10 +4,9 @@
 #include <ctime>
 #include <conio.h>
 #include <algorithm>
-
 using namespace std;
 
-class MazeGame {
+class Maze {
 public:
     const int ROW = 15;
     const int COL = 15;
@@ -18,49 +17,42 @@ public:
     const int MAX_MOVES = 150;
 
     int maze[ROW][COL];
-    int boolian;
-    int currentRow, currentCol, moves;
 
-    MazeGame() {
-        srand(time(NULL));
-        boolian = 1;
-        currentRow = 1;
-        currentCol = 1;
-        moves = 0;
-    }
+    bool boolian = 1;
 
-    void finisher(int currentRow, int currentCol) {
-        if (currentRow == ROW - 2 && currentCol == COL - 4) maze[ROW - 2][COL - 3] = PATH;
-        else if (currentRow == ROW - 3 && currentCol == COL - 4) maze[ROW - 3][COL - 3] = maze[ROW - 2][COL - 3] = PATH;
-        else if (currentRow == ROW - 4 && currentCol == COL - 4) maze[ROW - 3][COL - 4] = maze[ROW - 3][COL - 3] = maze[ROW - 2][COL - 3] = PATH;
-        else if (currentRow == ROW - 4 && currentCol == COL - 3) maze[ROW - 3][COL - 3] = maze[ROW - 3][COL - 2] = PATH;
-        else if (currentRow == ROW - 4 && currentCol == COL - 2) maze[ROW - 3][COL - 2] = PATH;
+    void finisher(int currentRow, int currentCol){
+        if(currentRow == ROW-2 && currentCol == COL-4)    maze[ROW-2][COL-3] = PATH;
+        else if(currentRow == ROW-3 && currentCol == COL-4)    maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
+        else if(currentRow == ROW-4 && currentCol == COL-4)    maze[ROW-3][COL-4] = maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
+        else if(currentRow == ROW-4 && currentCol == COL-3)    maze[ROW-3][COL-3] = maze[ROW-3][COL-2] = PATH;
+        else if(currentRow == ROW-4 && currentCol == COL-2)    maze[ROW-3][COL-2] = PATH;
         boolian = 0;
     }
 
-    void generateMaze() {
-        // maze walls
-        for (int i = 0; i < ROW; i++) {
-            for (int j = 0; j < COL; j++) {
-                maze[i][j] = WALL;
-            }
+void generateMaze() {
+    // maze walls
+    for (int i = 0; i < ROW; i++) {
+        for (int j = 0; j < COL; j++) {
+            maze[i][j] = WALL;
         }
+    }
+    boolian = 1;
+    maze[1][1] = START;
+    maze[ROW - 2][COL - 2] = END;
 
-        maze[1][1] = START;
-        maze[ROW - 2][COL - 2] = END;
+    // masir = path
+    int currentRow = 1 , currentCol = 1 , moves = 0; //radif  soton
 
-        // masir = path
-
-        while (boolian == 1) {
-            int direction = rand() % 4;
-            switch (direction) {
+    while (boolian == 1) {
+        int direction = rand() % 4;
+        switch(direction) {
             case 0: // Move up
                 if (currentRow > 1 && maze[currentRow - 2][currentCol] == WALL) {
                     maze[currentRow - 1][currentCol] = PATH;
                     maze[currentRow - 2][currentCol] = PATH;
                     currentRow -= 2;
                 }
-                if (currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow, currentCol);
+                if(currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow,currentCol);
                 break;
             case 1: // Move down
                 if (currentRow < ROW - 2 && maze[currentRow + 2][currentCol] == WALL) {
@@ -68,123 +60,174 @@ public:
                     maze[currentRow + 2][currentCol] = PATH;
                     currentRow += 2;
                 }
-                if (currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow, currentCol);
+                if(currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow,currentCol);
                 break;
             case 2: // Move left
                 if (currentCol > 1 && maze[currentRow][currentCol - 2] == WALL) {
                     maze[currentRow][currentCol - 1] = PATH;
                     maze[currentRow][currentCol - 2] = PATH;
                     currentCol -= 2;
-            }
-            if (currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow, currentCol);
-            break;
+                }
+                if(currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow,currentCol);
+                break;
             case 3: // Move right
                 if (currentCol < COL - 2 && maze[currentRow][currentCol + 2] == WALL) {
                     maze[currentRow][currentCol + 1] = PATH;
                     maze[currentRow][currentCol + 2] = PATH;
                     currentCol += 2;
                 }
-                if (currentRow >= ROW - 4 && currentCol >= COL - 4) finisher(currentRow, currentCol);
+                if(currentRow >= ROW-4 && currentCol >= COL-4) finisher(currentRow,currentCol);
                 break;
-            }
         }
-
-        // add extra paths
-        for (int i = 0; i < ROW; i++) {
-            for (int j = 0; j < COL; j++) {
-                int pathCount = 0;
-                if (maze[i][j] != WALL) continue;
-
-                if (i > 0 && maze[i - 1][j] == PATH) pathCount++;
-                if (j > 0 && maze[i][j - 1] == PATH) pathCount++;
-                if (i < ROW - 1 && maze[i + 1][j] == PATH) pathCount++;
-                if (j < COL - 1 && maze[i][j + 1] == PATH) pathCount++;
-
-                if (pathCount == 1 && rand() % 100 < 50) maze[i][j] = PATH;
+        moves++;
+        if(moves > MAX_MOVES){
+            for (int i = 0; i < ROW; i++) {
+                for (int j = 0; j < COL; j++) {
+                    maze[i][j] = WALL;
+                }
             }
+            maze[1][1] = START;
+            maze[ROW-2][COL-2] = END;
+            currentRow = 1; //radif
+            currentCol = 1; //soton
+            moves = 0;
         }
     }
 
-    void printMaze() {
-        system("cls");
-        for (int i = 0; i < ROW; i++) {
-            for (int j = 0; j < COL; j++) {
-                switch (maze[i][j]) {
-                case WALL:
-                    cout << char(219) << char(219);
-                    break;
-                case PATH:
-                    cout << "  ";
-                    break;
-                case START:
-                    cout << "S ";
-                    break;
-                case END:
-                    cout << "E ";
-                    break;
+
+    int counter = 0;
+    while (counter < 20) {
+        do{ 
+            currentRow = rand() % (ROW-2) +1;
+            currentCol = rand() % (COL-2) +1;
+        }while(maze[currentRow][currentCol] != PATH);
+        int direction = rand() % 4;
+        switch(direction) {
+            case 0: // Move up
+                if (currentRow > 3) {
+                    maze[currentRow - 1][currentCol] = PATH;
+                    maze[currentRow - 2][currentCol] = PATH;
                 }
-            }
-            cout << endl;
+                counter++;
+                break;
+            case 1: // Move down
+                if (currentRow < ROW-4) {
+                    maze[currentRow + 1][currentCol] = PATH;
+                    maze[currentRow + 2][currentCol] = PATH;
+                }
+                counter++;
+                break;
+            case 2: // Move left
+                if (currentCol > 3) {
+                    maze[currentRow][currentCol - 1] = PATH;
+                    maze[currentRow][currentCol - 2] = PATH;
+                }
+                counter++;
+                break;
+            case 3: // Move right
+                 if (currentCol < COL-4) {
+                    maze[currentRow][currentCol + 1] = PATH;
+                    maze[currentRow][currentCol + 2] = PATH;
+                }
+                counter++;
+                break;
+            default:cout << "hole erorr." << endl;break;
+
         }
-    }
+    }    
+}
 
-    void main() {
-        generateMaze();
-        printMaze();
-
-        while (1) {
-            int key = _getch();
-            switch (key) {
-            case 72: // Move up
-                if (maze[currentRow - 1][currentCol] != WALL) {
-                    maze[currentRow][currentCol] = PATH;
-                    currentRow--;
-                    moves++;
-                }
-                break;
-            case 80: // Move down
-                if (maze[currentRow + 1][currentCol] != WALL) {
-                    maze[currentRow][currentCol] = PATH;
-                    currentRow++;
-                    moves++;
-                }
-                break;
-            case 75: // Move left
-                if (maze[currentRow][currentCol - 1] != WALL) {
-                    maze[currentRow][currentCol] = PATH;
-                    currentCol--;
-                    moves++;
-                }
-                break;
-            case 77: // Move right
-                if (maze[currentRow][currentCol + 1] != WALL) {
-                    maze[currentRow][currentCol] = PATH;
-                    currentCol++;
-                    moves++;
-                }
-                break;
-            default:
-                break;
-            }
-
-            printMaze();
-            if (currentRow == ROW - 2 && currentCol == COL - 2) {
-                cout << "Congratulations! You've completed the maze!\n";
-                cout << "Number of moves taken: " << moves << endl;
-                break;
-            }
-            if (moves >= MAX_MOVES) {
-                cout << "Sorry, you couldn't complete the maze in time.\n";
-                break;
-            }
-        }
-
-        system("pause");
-    }
+class User {
+public:
+    string name = "anonymous";
+    int score = 1000;
 };
 
-int main() {
-    MazeGame mazeGame;
-    mazeGame.main();
-    return 0;
+bool compareUsers(User a, User b) {
+    if (a.score == b.score) { return a.name < b.name; }
+    else { return a.score < b.score; }
 }
+
+int main() {
+    srand(time(NULL));
+    Maze maze;
+    User list[4];
+    int order = -1, startTime = time(0), currentRow = 1, currentCol = 1, moves = 0, endTime;
+    char move;
+    while (1) {
+        system("cls");
+        maze.generateMaze();
+        startTime = time(0);
+        currentRow = 1;
+        currentCol = 1;
+        moves = 0;
+
+        while (maze.maze[currentRow][currentCol] != maze.END) {
+            system("cls");
+            maze.printMaze(currentRow, currentCol);
+            int arrow_key = getch();
+            if (arrow_key == 'x' || arrow_key == 's') move = 'd';
+            else if (arrow_key == 'w') move = 'u';
+            else if (arrow_key == 'd') move = 'r';
+            else if (arrow_key == 'a') move = 'l';
+            else if (arrow_key == 'q') move = 'q'; //u+l
+            else if (arrow_key == 'e') move = 'e'; //u+r
+            else if (arrow_key == 'z') move = 'z'; //d+l
+            else if (arrow_key == 'c') move = 'c'; //d+r
+            fflush(stdin);
+
+            switch (move) {
+                case 'u':
+                    if (currentRow > 1 && maze.maze[currentRow - 1][currentCol] != maze.WALL) { currentRow--; moves++; }
+                    break;
+                case 'd':
+                    if (currentRow < maze.ROW - 2 && maze.maze[currentRow + 1][currentCol] != maze.WALL) { currentRow++; moves++; }
+                    break;
+                case 'l':
+                    if (currentCol > 1 && maze.maze[currentRow][currentCol - 1] != maze.WALL) { currentCol--; moves++; }
+                    break;
+                case 'r':
+                    if (currentCol < maze.COL - 2 && maze.maze[currentRow][currentCol + 1] != maze.WALL) { currentCol++; moves++; }
+                    break;
+                case 'q': //u+l
+                    if (currentRow > 1 && currentCol > 1 && maze.maze[currentRow - 1][currentCol - 1] != maze.WALL) { currentRow--; currentCol--; moves++; }
+                    break;
+                case 'e': //u+r
+                    if (currentRow > 1 && currentCol < maze.COL - 2 && maze.maze[currentRow - 1][currentCol + 1] != maze.WALL) { currentRow--; currentCol++; moves++; }
+                    break;
+                case 'z': //d+l
+                    if (currentRow < maze.ROW - 2 && currentCol > 1 && maze.maze[currentRow + 1][currentCol - 1] != maze.WALL) { currentRow++; currentCol--; moves++; }
+                    break;
+                case 'c': //dr
+                    if (currentRow < maze.ROW - 2 && currentCol < maze.COL - 2 && maze.maze[currentRow + 1][currentCol + 1] != maze.WALL) { currentRow++; currentCol++; moves++; }
+                    break;
+                default:
+                    cout << "Invalid move. Try again." << endl;
+                    continue;
+            }
+        }
+
+        endTime = time(0) - startTime;
+        system("cls");
+        cout << "\n **** You won this game in " << endTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..." << getch() << endl;
+        fflush(stdin);
+        system("cls");
+        cout << "\n Score : " << endTime << "\n Name : ";
+        order++;
+        if(order>3)order=3;
+        cin >> list[order].name;
+        list[order].score=endTime;
+        sort(list, list + 4, compareUsers);
+        system("cls");
+        cout << "\n List of top 3 players:" << endl;
+        for (int i = 0; i < 3; i++) {
+            if(list[i].name == "anonymous" && list[i].score == 1000) cout << " " << i+1 << ") " << endl;
+            else{cout << " " << i+1 << ") " << list[i].name << ": " << list[i].score << endl;}
+        }
+        cout << "\n If you want to exit the game, press zero(0), otherwise press any key to continue...";
+        if(getch() == '0') break;
+    }
+    system("cls");
+    cout<< "\n ********** THE END **********\n";
+}
+
