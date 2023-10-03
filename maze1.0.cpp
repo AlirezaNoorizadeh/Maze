@@ -36,7 +36,7 @@ void generateMaze() {
     }
     boolian = 1;
     maze[1][1] = START;
-    maze[13][13] = END;
+    maze[ROW-2][COL-2] = END;
 
     // masir = path
     int currentRow = 1 , currentCol = 1 , moves = 0; //radif  soton
@@ -85,7 +85,7 @@ void generateMaze() {
                 }
             }
             maze[1][1] = START;
-            maze[13][13] = END;
+            maze[ROW-2][COL-2] = END;
             currentRow = 1; //radif
             currentCol = 1; //soton
             moves = 0;
@@ -148,7 +148,7 @@ void printMaze(int currentRow, int currentCol) {
             } else {
                 switch(maze[i][j]) {
                     case WALL:
-                        if(i == 0 || i == 14 || j == 0 || j == 14){SetConsoleTextAttribute(col, 7); cout << "O ";}
+                        if(i == 0 || i == ROW-1 || j == 0 || j == ROW-1){SetConsoleTextAttribute(col, 7); cout << "O ";}
                         else{SetConsoleTextAttribute(col, 12); cout << "# ";}
                         break;
                     case PATH:
@@ -195,11 +195,13 @@ int main() {
         while (maze[currentRow][currentCol] != END) {
             system("cls");
             printMaze(currentRow, currentCol);
+                        
+            //move
             int arrow_key = getch();
-                 if(arrow_key == 80 || arrow_key == 'x' || arrow_key == 's') move = 'd';
-            else if(arrow_key == 72 || arrow_key == 'w') move = 'u';
-            else if(arrow_key == 77 || arrow_key == 'd') move = 'r';
-            else if(arrow_key == 75 || arrow_key == 'a') move = 'l';
+                 if(arrow_key == 'x' || arrow_key == 's') move = 'd';
+            else if(arrow_key == 'w') move = 'u';
+            else if(arrow_key == 'd') move = 'r';
+            else if(arrow_key == 'a') move = 'l';
             else if(arrow_key == 'q') move = 'q'; //u+l
             else if(arrow_key == 'e') move = 'e'; //u+r
             else if(arrow_key == 'z') move = 'z'; //d+l
