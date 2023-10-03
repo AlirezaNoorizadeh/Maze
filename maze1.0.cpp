@@ -1,4 +1,4 @@
-#include <windows.h> //GetStdHandle  //SetConsoleTextAttribute 
+#include <windows.h> //GetStdHandle  //setColor 
 #include <iostream>  //cin  //cout
 #include <cstdlib>  //rand //srand 
 #include <ctime>  //time 
@@ -8,12 +8,27 @@
 #include <iomanip>  //setw  //left
 using namespace std;
 
+struct User {
+    string name="anonymous";
+    int score=1000;
+    int endTime=0;
+    int startTime=0;
+    int id=0; 
+};
+
 const int WALL = 0;
 const int PATH = 1;
 const int START = 2;
 const int END = 3;
 int** maze;
-int boolian = 1;
+int boolian = 1, ROW=14, COL=14, wallColor=12, cursorColor=15, menu;
+int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
+FILE *file;
+vector<User> list;
+
+void setColor(int color) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
 
 void generateMaze(int row, int col) {
     int ROW = row;
@@ -132,30 +147,29 @@ void generateMaze(int row, int col) {
     
 }
 
-HANDLE col = GetStdHandle(STD_OUTPUT_HANDLE);
 void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, int cursorColor) {
     cout << endl;
     for (int i = 0; i < ROW; i++) {
         cout << "    ";
         for (int j = 0; j < COL; j++) {
             if (i == currentRow && j == currentCol) {
-                SetConsoleTextAttribute(col, cursorColor);
+                setColor(cursorColor);
                 cout << "X ";
             } else {
                 switch(maze[i][j]) {
                     case WALL:
-                        if(i == 0 || i == ROW-1 || j == 0 || j == ROW-1){SetConsoleTextAttribute(col, 7); cout << "O ";}
-                        else{SetConsoleTextAttribute(col, wallColor); cout << "# ";}
+                        if(i == 0 || i == ROW-1 || j == 0 || j == ROW-1){setColor(7); cout << "O ";}
+                        else{setColor(wallColor); cout << "# ";}
                         break;
                     case PATH:
                         cout << "  ";
                         break;
                     case START:
-                        SetConsoleTextAttribute(col, 10);
+                        setColor(10);
                         cout << "S ";
                         break;
                     case END:
-                        SetConsoleTextAttribute(col, 2);
+                        setColor(2);
                         cout << "E ";
                         break;
                 }
@@ -165,27 +179,10 @@ void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, i
     }
 }
 
-struct User {
-    string name="anonymous";
-    int score=1000;
-    int endTime=0;
-    int startTime=0;
-    int id=0; 
-};
-
 bool compareUsers(User a, User b) {
     if (a.score == b.score) { return a.name < b.name; }
     else { return a.score < b.score; }
 }
-
-int ROW=14;
-int COL=14;
-int wallColor=12;
-int cursorColor=15;
-int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
-int menu;
-FILE *file;
-vector<User> list;
 
 void setDifficulty(){
     system("cls");
@@ -202,37 +199,57 @@ void setDifficulty(){
 void setColor(){
     system("cls");
     for (int col_code = 1; col_code < 256; col_code++) {
-        SetConsoleTextAttribute(col, col_code);
+        setColor(col_code);
         cout << col_code <<" ";
     }
-    SetConsoleTextAttribute(col, 7);
+    setColor(7);
     cout << "\n\n  Select Wall Color (a num between 1-255 , ";
-    SetConsoleTextAttribute(col, wallColor);
+    setColor(wallColor);
     cout << "now=" << wallColor ;
-    SetConsoleTextAttribute(col, 7); 
+    setColor(7); 
     cout<<"): ";
     cin >> wallColor;
     if(wallColor<1 || wallColor>255){
-        SetConsoleTextAttribute(col, 12);
+        setColor(12);
         cout << " This number is not in the range of 1-255\n The wall color remained in the default state\n press any key to continue..." ;
         getch();
         cout << endl;
         wallColor=12;
     }
-    SetConsoleTextAttribute(col, 7);
+    setColor(7);
     cout << "  Select Cursor Color (a num between 1-255 , ";
-    SetConsoleTextAttribute(col, cursorColor);
+    setColor(cursorColor);
     cout << "now=" << cursorColor ;
-    SetConsoleTextAttribute(col, 7); 
+    setColor(7); 
     cout<<"): ";
     cin >> cursorColor;
-    if(!(cursorColor>0 && cursorColor<255)){
-        SetConsoleTextAttribute(col, 12);
+    if(cursorColor<1 || cursorColor>255){
+    // if(!(cursorColor>0 && cursorColor<255)){
+        setColor(12);
         cout << " This number is not in the range of 1-255\n The cursor color remained in the default state\n Press any key to return to the menu...." ;
         getch();
         cout << endl;
         cursorColor=14;
-        SetConsoleTextAttribute(col, 7);
+        setColor(7);
+    }
+}
+
+void Rename();
+void mainMenu(){
+    setColor(7);
+    bool main = true;
+    while(main){
+        system("cls");
+        cout << "\n menu:\n  1)Play\n  2)Rename\n  3)Set Difficulty\n  4)Set color\n  5)EXIT" <<endl;
+        menu = getch()-48;
+        switch(menu){
+            case 1: main=false; break;
+            case 2: Rename(); break;
+            case 3: setDifficulty(); break;
+            case 4: setColor(); break;
+            case 5: system("cls"); setColor(13); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
+            default: cout<<" this not be valid try 1-5\n press any key to continue..."; getch(); break;
+        }
     }
 }
 
@@ -254,8 +271,8 @@ void Rename(){
             test = false;
         }
     }
-    if(test) { cout<<" This ID does not exist \n Press any key to return to the menu...."; getch(); }
-    else{ cout<<" This ID has been successfully renamed \n Press any key to return to the menu...."; getch(); }
+    if(test) { cout<<"\n This ID does not exist \n Press any key to return to the menu...."; getch(); mainMenu();}
+    else{ cout<<"\n This ID has been successfully renamed \n Press any key to return to the menu...."; getch(); }
 
     for (int i = 0; i < list.size(); i++) {
         if (list[i].id == id) {
@@ -276,23 +293,6 @@ void Rename(){
     fclose(file);
 }
 
-void mainMenu(){
-    SetConsoleTextAttribute(col, 7);
-    bool main = true;
-    while(main){
-        system("cls");
-        cout << "\n menu:\n  1)Play\n  2)Rename\n  3)Set Difficulty\n  4)Set color\n  5)EXIT" <<endl;
-        menu = getch()-48;
-        switch(menu){
-            case 1: main=false; break;
-            case 2: Rename(); break;
-            case 3: setDifficulty(); break;
-            case 4: setColor(); break;
-            case 5: system("cls"); SetConsoleTextAttribute(col, 13); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
-            default: cout<<" this not be valid try 1-5\n press any key to continue..."; getch(); break;
-        }
-    }
-}
 
 void fileReader(){
     // Load scores from file
@@ -314,6 +314,19 @@ void fileReader(){
     }
 }
 
+void saveScores(){
+    // Save scores to file
+    file = fopen("scores.txt", "w");
+    // if (file == NULL) {
+    //     cout << "Error opening file" << endl;
+    //     exit(1);
+    // }
+    for (int i = 0; i < list.size(); i++) {
+        fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
+    }
+    fclose(file);
+}
+
 int main() {
     srand(time(NULL));
     fileReader();
@@ -330,11 +343,11 @@ int main() {
         while (maze[currentRow][currentCol] != END) {
             system("cls");
             printMaze(currentRow, currentCol, ROW, COL, wallColor, cursorColor);
-            
+
             //move
             char move;
             int arrow_key = getch();
-            if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
+                 if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
             else if(arrow_key == 'w' || arrow_key == '8' || arrow_key == 72) move = 'u';
             else if(arrow_key == 'd' || arrow_key == '6' || arrow_key == 77) move = 'r';
             else if(arrow_key == 'a' || arrow_key == '4' || arrow_key == 75) move = 'l';
@@ -398,35 +411,21 @@ int main() {
                     list[i].startTime = newUser.startTime;
                     list[i].endTime = newUser.endTime;
                 }
-                SetConsoleTextAttribute(col, 2);
-                cout << " Hi " << list[i].name << " your best score is " << list[i].score << " now.\n Press any key to continue..." << endl;
+                setColor(2);
+                cout << " Hi " << list[i].name << " (ID = " << list[i].id << ")" << " your best score is " << list[i].score << " now.\n Press any key to continue..." << endl;
                 getch();
-                SetConsoleTextAttribute(col, 7);
+                setColor(7);
                 newUser.id = list[i].id;
                 break;
             }
         }
-
         if (!userExists) {
             newUser.id=startTime%10000;
             list.push_back(newUser);
         }
 
         sort(list.begin(), list.end(), compareUsers);
-
-        // Save scores to file
-        file = fopen("scores.txt", "w");
-        if (file == NULL) {
-            cout << "Error opening file" << endl;
-            exit(1);
-        }
-
-        for (int i = 0; i < list.size(); i++) {
-            fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
-        }
-
-        fclose(file);
-
+        saveScores();
 
         system("cls");
         cout << "\n List of top 3 players:" << endl;
@@ -435,13 +434,6 @@ int main() {
             cout << left << setw(3) << " " << i+1 << +") " << setw(7) << list[i].name << "    score: " << setw(3) << list[i].score << "  id: " << setw(4) << list[i].id << endl;
         }
 
-        // cout << "\n Select:\n  1)Continue\n  2)Back to menu\n";
-        // menu = getch()-48;
-        // switch(menu){
-        //     case 1: break;
-        //     case 2: mainMenu(); break;
-        //     default: cout<<"Set difficul num 3 and Exit"; exit(0); break;
-        // }
         cout << "\n Press any key to return to the menu..." << getch() << fflush(stdin); 
     }
     return 0;
