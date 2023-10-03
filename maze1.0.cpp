@@ -26,10 +26,7 @@ int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime
 FILE *file;
 vector<User> list;
 
-void setColor(int color) {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
-}
-
+void setColor(int color);
 void saveScores();
 void fileReader();
 void Rename();
@@ -108,6 +105,7 @@ int main() {
         cout << "\n(Your score = The duration of the game*2 + the number of moves you have made in the game/2)\n Score : " << (lengthTime*2)+(moves/2) <<" \n Name : ";
         
         User newUser;
+        fflush(stdin);
         cin >> newUser.name;
         newUser.score=(lengthTime*2)+(moves/2);
         newUser.startTime=startTime;
@@ -123,7 +121,7 @@ int main() {
                     list[i].endTime = newUser.endTime;
                 }
                 setColor(2);
-                cout << " Hi " << list[i].name << " (ID = " << list[i].id << ")" << " your best score is " << list[i].score << " now.\n Press any key to continue..." << endl;
+                cout << "\n Hi " << list[i].name << " (ID = " << list[i].id << ")" << " your best score is " << list[i].score << " now.\n Press any key to continue..." << endl;
                 getch();
                 setColor(7);
                 newUser.id = list[i].id;
@@ -151,6 +149,7 @@ int main() {
 }
 
 void generateMaze(int row, int col) {
+    fflush(stdin);
     int ROW = row;
     int COL = col;
     int MAX_MOVES = row*10;
@@ -268,6 +267,7 @@ void generateMaze(int row, int col) {
 }
 
 void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, int cursorColor) {
+    fflush(stdin);
     cout << endl;
     for (int i = 0; i < ROW; i++) {
         cout << "    ";
@@ -305,6 +305,7 @@ bool compareUsers(User a, User b) {
 }
 
 void setDifficulty(){
+    fflush(stdin);
     system("cls");
     cout << "\n Select difficulty: \n" << "  1)Esay\n  2)Medium\n  3)Hard"<<endl;
         int difficulty = getch()-48;
@@ -317,6 +318,7 @@ void setDifficulty(){
 }
 
 void colorSeter(){
+    fflush(stdin);
     system("cls");
     for (int col_code = 1; col_code < 256; col_code++) {
         setColor(col_code);
@@ -328,6 +330,7 @@ void colorSeter(){
     cout << "now=" << wallColor ;
     setColor(7); 
     cout<<"): ";
+    fflush(stdin);
     cin >> wallColor;
     if(wallColor<1 || wallColor>255){
         setColor(12);
@@ -342,6 +345,7 @@ void colorSeter(){
     cout << "now=" << cursorColor ;
     setColor(7); 
     cout<<"): ";
+    fflush(stdin);
     cin >> cursorColor;
     if(cursorColor<1 || cursorColor>255){
     // if(!(cursorColor>0 && cursorColor<255)){
@@ -355,6 +359,7 @@ void colorSeter(){
 }
 
 void mainMenu(){
+    fflush(stdin);
     setColor(7);
     bool main = true;
     while(main){
@@ -363,9 +368,9 @@ void mainMenu(){
         menu = getch()-48;
         switch(menu){
             case 1: main=false; break;
-            case 2: Rename(); break;
-            case 3: setDifficulty(); break;
-            case 4: colorSeter(); break;
+            case 2: fflush(stdin); Rename(); break;
+            case 3: fflush(stdin); setDifficulty(); break;
+            case 4: fflush(stdin); colorSeter(); break;
             case 5: system("cls"); setColor(13); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
             default: cout<<" this not be valid try 1-5\n press any key to continue..."; getch(); break;
         }
@@ -373,6 +378,7 @@ void mainMenu(){
 }
 
 void Rename(){
+    fflush(stdin);
     system("cls");
     cout << "\n List of all players:" << endl;
     for (int i = 0; i < list.size(); i++) {
@@ -380,6 +386,7 @@ void Rename(){
     }
     string newName;
     int id;
+    fflush(stdin);
     cout << "\n Enter id: ";
     cin >> id;
     cout << " Enter new name: ";
@@ -399,21 +406,22 @@ void Rename(){
             break;
         }
     }
-
-    // Save scores to file
-    file = fopen("scores.txt", "w");
-    if (file == NULL) {
-        cout << "Error opening file" << endl;
-        exit(1);
-    }
-    for (int i = 0; i < list.size(); i++) {
-        fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
-    }
-    fclose(file);
+    saveScores();
+    // // Save scores to file
+    // file = fopen("scores.txt", "w");
+    // if (file == NULL) {
+    //     cout << "Error opening file" << endl;
+    //     exit(1);
+    // }
+    // for (int i = 0; i < list.size(); i++) {
+    //     fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
+    // }
+    // fclose(file);
 }
 
 
 void fileReader(){
+    fflush(stdin);
     // Load scores from file
     file = fopen("scores.txt", "r");
     if (file != NULL) {
@@ -433,6 +441,7 @@ void fileReader(){
     }
 }
 void saveScores(){
+    fflush(stdin);
     // Save scores to file
     file = fopen("scores.txt", "w");
     // if (file == NULL) {
@@ -443,4 +452,9 @@ void saveScores(){
         fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
     }
     fclose(file);
+}
+
+void setColor(int color) {
+    fflush(stdin);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
