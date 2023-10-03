@@ -19,7 +19,7 @@ const int PATH = 1;
 const int START = 2;
 const int END = 3;
 int** maze;
-int boolian = 1, ROW=14, COL=14, wallColor=12, cursorColor=15, menu;
+int boolian = 1, ROW=14, COL=14, MAX_MOVES = ROW*10, wallColor=12, cursorColor=15, menu;
 int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
 FILE *file;
 vector<User> list;
@@ -32,8 +32,8 @@ void colorSeter();
 void setDifficulty();
 void setColor(int color);
 bool compareUsers(User a, User b);
-void generateMaze(int row, int col);
-void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, int cursorColor);
+void generateMaze();
+void printMaze();
 
 int main() {
     srand(time(NULL));
@@ -42,7 +42,7 @@ int main() {
     while(1){
         mainMenu();
         system("cls");
-        generateMaze(ROW,COL);
+        generateMaze();
         startTime = time(0);
         currentRow = 1;
         currentCol = 1;
@@ -50,7 +50,7 @@ int main() {
 
         while (maze[currentRow][currentCol] != END) {
             system("cls");
-            printMaze(currentRow, currentCol, ROW, COL, wallColor, cursorColor);
+            printMaze();
             char move;
             int arrow_key = getch();
                  if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
@@ -142,15 +142,12 @@ int main() {
     return 0;
 }
 
-void generateMaze(int row, int col) {
+void generateMaze() {
     fflush(stdin);
-    int ROW = row;
-    int COL = col;
-    int MAX_MOVES = row*10;
     // Create dynamic 2D array
-    maze = new int*[row];
-    for (int i = 0; i < row; i++) {
-        maze[i] = new int[col];
+    maze = new int*[ROW];
+    for (int i = 0; i < ROW; i++) {
+        maze[i] = new int[COL];
     }
     // maze walls
     for (int i = 0; i < ROW; i++) {
@@ -173,6 +170,9 @@ void generateMaze(int row, int col) {
                     maze[currentRow - 1][currentCol] = PATH;
                     maze[currentRow - 2][currentCol] = PATH;
                     currentRow -= 2;
+                } else if (ROW % 2 == 1 && currentRow > 1 && maze[currentRow - 1][currentCol] == WALL) {
+                    maze[currentRow - 1][currentCol] = PATH;
+                    currentRow -= 1;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow+1][currentCol]=PATH; boolian=0;}
                 break;
@@ -181,6 +181,9 @@ void generateMaze(int row, int col) {
                     maze[currentRow + 1][currentCol] = PATH;
                     maze[currentRow + 2][currentCol] = PATH;
                     currentRow += 2;
+                } else if (ROW % 2 == 1 && currentRow < ROW - 2 && maze[currentRow + 1][currentCol] == WALL) {
+                    maze[currentRow + 1][currentCol] = PATH;
+                    currentRow += 1;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow+1][currentCol]=PATH; boolian=0;}
                 break;
@@ -189,6 +192,9 @@ void generateMaze(int row, int col) {
                     maze[currentRow][currentCol - 1] = PATH;
                     maze[currentRow][currentCol - 2] = PATH;
                     currentCol -= 2;
+                } else if (COL % 2 == 1 && currentCol > 1 && maze[currentRow][currentCol - 1] == WALL) {
+                    maze[currentRow][currentCol - 1] = PATH;
+                    currentCol -= 1;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow][currentCol+1]=PATH; boolian=0;}
                 break;
@@ -197,6 +203,9 @@ void generateMaze(int row, int col) {
                     maze[currentRow][currentCol + 1] = PATH;
                     maze[currentRow][currentCol + 2] = PATH;
                     currentCol += 2;
+                } else if (COL % 2 == 1 && currentCol < COL - 2 && maze[currentRow][currentCol + 1] == WALL) {
+                    maze[currentRow][currentCol + 1] = PATH;
+                    currentCol += 1;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow][currentCol+1]=PATH; boolian=0;}
                 break;
@@ -259,7 +268,7 @@ void generateMaze(int row, int col) {
     
 }
 
-void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, int cursorColor) {
+void printMaze() {
     fflush(stdin);
     cout << endl;
     for (int i = 0; i < ROW; i++) {
@@ -308,7 +317,7 @@ void setDifficulty(){
             case 1: ROW=10; COL=10; break;
             case 2: ROW=16; COL=16; break;
             case 3: ROW=20; COL=20; break;
-            default: ROW=14; COL=14; cout<<"\n The difficulty remained in the default state 14*14\n press any key to continue..."; getch(); fflush(stdin); break;
+            default: ROW=15; COL=15; cout<<"\n The difficulty remained in the default state "<<ROW<<"x"<<COL<<"\n press any key to continue..."; getch(); fflush(stdin); break;
         }
 }
 
