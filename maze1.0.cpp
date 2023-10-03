@@ -147,22 +147,31 @@ void generateMaze() {
 }
 
 void printMaze(int currentRow, int currentCol) {
+    cout << endl;
     for (int i = 0; i < ROW; i++) {
+        cout << "    ";
         for (int j = 0; j < COL; j++) {
             if (i == currentRow && j == currentCol) {
-                cout << "x ";
+                cout << "X ";
             } else {
                 switch(maze[i][j]) {
                     case WALL:
                         // system("color 3");
                         // textcolor(RED);
-                        cout << "# ";
+                        // if(i == 0 && j == 0){cout << "┍ ";}
+                        // else if(i == 0 && j == 14){cout << "┓ ";}
+                        // else if(i == 14 && j == 0){cout << "┗ ";}
+                        // else if(i == 14 && j == 14){cout << "┛ ";}
+                        // else if(i == 0 || i == 14){cout << "━ ";}
+                        // else if(j == 0 || j == 14){cout << "│ ";}
+                        if(i == 0 || i == 14 || j == 0 || j == 14){cout << "O ";}
+                        else{cout << "# ";}
                         break;
                     case PATH:
                         cout << "  ";
                         break;
                     case START:
-                        // system("color 4");
+                        // system("color 44");
                         cout << "S ";
                         break;
                     case END:
@@ -181,12 +190,8 @@ struct User {
 };
 
 bool compareUsers(User a, User b) {
-    if (a.score == b.score) {
-        return a.name < b.name;
-    }
-    else {
-        return a.score < b.score;
-    }
+    if (a.score == b.score) { return a.name < b.name; }
+    else { return a.score < b.score; }
 }
 
 int main() {
@@ -201,13 +206,11 @@ int main() {
     int endTime;
     while(1){
         system("cls");
-        // cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"<< endl;
         generateMaze();
         startTime = time(0);
         currentRow = 1;
         currentCol = 1;
         moves = 0;
-        // cout << "ffffffffffffffffffffffffffffff"<< endl;
 
         while (maze[currentRow][currentCol] != END) {
             // fflush(stdin);
@@ -288,23 +291,24 @@ int main() {
 
         endTime = time(0) - startTime;
         system("cls");
-        cout << "\n**** You won this game in " << endTime << " seconds and with " << moves << " moves! ****" << "\nPress any key to continue..."  << getch() <<endl;
+        cout << "\n **** You won this game in " << endTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..."  << getch() <<endl;
         fflush(stdin);
         system("cls");
-        cout << "Name : ";
+        cout << "\n  Score : " << endTime <<"\n  Name : ";
         order++;
         if(order>3)order=3;
         cin >> list[order].name;
         list[order].score=endTime;
         sort(list, list + 4, compareUsers);
-        cout << "Sorted list:" << endl;
+        system("cls");
+        cout << "\n List of top 3 players:" << endl;
         for (int i = 0; i < 3; i++) {
-            if(list[i].name == "anonymous" && list[i].score == 1000) cout << i+1 << ") " << endl;
-            else{cout << i+1 << ") " << list[i].name << ": " << list[i].score << endl;}
+            if(list[i].name == "anonymous" && list[i].score == 1000) cout << "  " << i+1 << ") " << endl;
+            else{cout << "  " << i+1 << ") " << list[i].name << ": " << list[i].score << endl;}
         }
-        cout << "If you want to exit the game, press zero(0), otherwise press any key to continue...";
-        if(getch() == '0')  break;
+        cout << "\n If you want to exit the game, press zero(0), otherwise press any key to continue...";
+        if(getch() == '0') break;
     }
     system("cls");
-    cout<< "\n**********  THE END   **********\n";
+    cout<< "\n  **********  THE END   **********\n";
 }
