@@ -178,32 +178,125 @@ bool compareUsers(User a, User b) {
     else { return a.score < b.score; }
 }
 
-int main() {
-    srand(time(NULL));
-    system("cls");
-    vector<User> list;
-    int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
-    char move;
-    int menu;
-    int ROW=14;
-    int COL=14;
-    cout << "Select difficulty: \n" << " 1) esay\n 2) medium\n 3) hard"<<endl;
-    int difficulty = getch()-48;
-    switch(difficulty){
-        case 1: ROW=10; COL=10; break;
-        case 2: ROW=16; COL=16; break;
-        case 3: ROW=20; COL=20; break;
-        default: cout<<"set difficul 14*14"; break;
-    }
-    int wallColor=12;
-    int cursorColor=15;
-    cout << "Select Color: \n" << " 1) Wall Color (a num between 1-15 , now=12):" ;
-    cin >> wallColor;
-    cout << " 2) Cursor Color (a num between 1-15 , now=15):" ;
-    cin >> cursorColor;
+int ROW=14;
+int COL=14;
+int wallColor=12;
+int cursorColor=15;
+int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
+int menu;
+FILE *file;
+vector<User> list;
 
+void setDifficulty(){
+    system("cls");
+    cout << "\n Select difficulty: \n" << "  1)Esay\n  2)Medium\n  3)Hard"<<endl;
+        int difficulty = getch()-48;
+        switch(difficulty){
+            case 1: ROW=10; COL=10; break;
+            case 2: ROW=16; COL=16; break;
+            case 3: ROW=20; COL=20; break;
+            default: cout<<"\n The difficulty remained in the default state 14*14\n press any key to continue..."; getch(); break;
+        }
+}
+
+void setColor(){
+    system("cls");
+    for (int col_code = 1; col_code < 256; col_code++) {
+        SetConsoleTextAttribute(col, col_code);
+        cout << col_code <<" ";
+    }
+    SetConsoleTextAttribute(col, 7);
+    cout << "\n\n  Select Wall Color (a num between 1-255 , ";
+    SetConsoleTextAttribute(col, wallColor);
+    cout << "now=" << wallColor ;
+    SetConsoleTextAttribute(col, 7); 
+    cout<<"): ";
+    cin >> wallColor;
+    if(wallColor<1 || wallColor>255){
+        SetConsoleTextAttribute(col, 12);
+        cout << " This number is not in the range of 1-255\n The wall color remained in the default state\n press any key to continue..." ;
+        getch();
+        cout << endl;
+        wallColor=12;
+    }
+    SetConsoleTextAttribute(col, 7);
+    cout << "  Select Cursor Color (a num between 1-255 , ";
+    SetConsoleTextAttribute(col, cursorColor);
+    cout << "now=" << cursorColor ;
+    SetConsoleTextAttribute(col, 7); 
+    cout<<"): ";
+    cin >> cursorColor;
+    if(!(cursorColor>0 && cursorColor<255)){
+        SetConsoleTextAttribute(col, 12);
+        cout << " This number is not in the range of 1-255\n The cursor color remained in the default state\n Press any key to return to the menu...." ;
+        getch();
+        cout << endl;
+        cursorColor=14;
+        SetConsoleTextAttribute(col, 7);
+    }
+}
+
+void Rename(){
+    system("cls");
+    cout << "\n List of all players:" << endl;
+    for (int i = 0; i < list.size(); i++) {
+        cout << left << setw(3) << " " << i+1 << +") " << setw(8) << list[i].name << "   score: " << setw(3) << list[i].score << "  id: " << setw(4) << list[i].id << endl;
+    }
+    string newName;
+    int id;
+    cout << "\n Enter id: ";
+    cin >> id;
+    cout << " Enter new name: ";
+    cin >> newName;
+    bool test = true;
+    for (int i = 0; i < list.size(); i++) {
+        if (list[i].id == id) {
+            test = false;
+        }
+    }
+    if(test) { cout<<" This ID does not exist \n Press any key to return to the menu...."; getch(); }
+    else{ cout<<" This ID has been successfully renamed \n Press any key to return to the menu...."; getch(); }
+
+    for (int i = 0; i < list.size(); i++) {
+        if (list[i].id == id) {
+            list[i].name = newName;
+            break;
+        }
+    }
+
+    // Save scores to file
+    file = fopen("scores.txt", "w");
+    if (file == NULL) {
+        cout << "Error opening file" << endl;
+        exit(1);
+    }
+    for (int i = 0; i < list.size(); i++) {
+        fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
+    }
+    fclose(file);
+}
+
+void mainMenu(){
+    SetConsoleTextAttribute(col, 7);
+    bool main = true;
+    while(main){
+        system("cls");
+        cout << "\n menu:\n  1)Play\n  2)Rename\n  3)Set Difficulty\n  4)Set color\n  5)EXIT" <<endl;
+        menu = getch()-48;
+        switch(menu){
+            case 1: main=false; break;
+            case 2: Rename(); break;
+            case 3: setDifficulty(); break;
+            case 4: setColor(); break;
+            case 5: system("cls"); SetConsoleTextAttribute(col, 13); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
+            default: cout<<" this not be valid try 1-5\n press any key to continue..."; getch(); break;
+        }
+    }
+}
+
+void fileReader(){
     // Load scores from file
-    FILE *file = fopen("scores.txt", "r");
+    file = fopen("scores.txt", "r");
     if (file != NULL) {
         char name[100];
         int score, startTime, endTime, id;
@@ -217,11 +310,16 @@ int main() {
             
             list.push_back(newUser);
         }
-
         fclose(file);
     }
+}
 
+int main() {
+    srand(time(NULL));
+    fileReader();
+    
     while(1){
+        mainMenu();
         system("cls");
         generateMaze(ROW,COL);
         startTime = time(0);
@@ -232,8 +330,9 @@ int main() {
         while (maze[currentRow][currentCol] != END) {
             system("cls");
             printMaze(currentRow, currentCol, ROW, COL, wallColor, cursorColor);
-
+            
             //move
+            char move;
             int arrow_key = getch();
             if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
             else if(arrow_key == 'w' || arrow_key == '8' || arrow_key == 72) move = 'u';
@@ -279,10 +378,10 @@ int main() {
         endTime = time(0);
         lengthTime = endTime - startTime;
         system("cls");
-        cout << "\n **** You won this game in " << lengthTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..." << getch() <<endl;
+        cout << "\n **** You won this game in " << lengthTime << " seconds and with " << moves << " moves! ****\n Press any key to continue..." << getch() << endl;
         fflush(stdin);
         system("cls");
-        cout << "\n(The duration of the game*2 + the number of moves you have made in the game/2 = your score)\n Score : " << (lengthTime*2)+(moves/2) <<" \n Name : ";
+        cout << "\n(Your score = The duration of the game*2 + the number of moves you have made in the game/2)\n Score : " << (lengthTime*2)+(moves/2) <<" \n Name : ";
         
         User newUser;
         cin >> newUser.name;
@@ -302,6 +401,7 @@ int main() {
                 SetConsoleTextAttribute(col, 2);
                 cout << " Hi " << list[i].name << " your best score is " << list[i].score << " now.\n Press any key to continue..." << endl;
                 getch();
+                SetConsoleTextAttribute(col, 7);
                 newUser.id = list[i].id;
                 break;
             }
@@ -327,50 +427,22 @@ int main() {
 
         fclose(file);
 
+
         system("cls");
         cout << "\n List of top 3 players:" << endl;
         int numPlayers = (list.size() < 3) ? list.size() : 3;
         for (int i = 0; i < numPlayers; i++) {
-            cout << left << setw(3) << " " << i+1 << ") " << setw(7) << list[i].name << ": " << setw(3) << list[i].score << " id: " << setw(4) << list[i].id << endl;
+            cout << left << setw(3) << " " << i+1 << +") " << setw(7) << list[i].name << "    score: " << setw(3) << list[i].score << "  id: " << setw(4) << list[i].id << endl;
         }
 
-        
-        string newName;
-        cout << "\n Menu:\n  1)Continue\n  2)Rename whit id\n  3)EXIT";
-        menu = getch()-48;
-        switch(menu){
-            case 1: break;
-            case 2:
-                int id;
-                cout << "\n Enter id: ";
-                cin >> id;
-                cout << " Enter new name: ";
-                cin >> newName;
-
-                for (int i = 0; i < list.size(); i++) {
-                    if (list[i].id == id) {
-                        list[i].name = newName;
-                        break;
-                    }
-                }
-
-                // Save scores to file
-                file = fopen("scores.txt", "w");
-                if (file == NULL) {
-                    cout << "Error opening file" << endl;
-                    exit(1);
-                }
-
-                for (int i = 0; i < list.size(); i++) {
-                    fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
-                }
-
-                fclose(file);
-                break;
-
-            case 3: system("cls"); SetConsoleTextAttribute(col, 13); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
-            default: cout<<"Set difficul num 3 and Exit"; exit(0); break;
-        }
+        // cout << "\n Select:\n  1)Continue\n  2)Back to menu\n";
+        // menu = getch()-48;
+        // switch(menu){
+        //     case 1: break;
+        //     case 2: mainMenu(); break;
+        //     default: cout<<"Set difficul num 3 and Exit"; exit(0); break;
+        // }
+        cout << "\n Press any key to return to the menu..." << getch() << fflush(stdin); 
     }
     return 0;
 }
