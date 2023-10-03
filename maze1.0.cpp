@@ -4,27 +4,16 @@
 #include <ctime>
 #include <conio.h>
 #include <algorithm>
+#include <vector>
+#include <cstdlib>
 using namespace std;
 
 const int WALL = 0;
 const int PATH = 1;
 const int START = 2;
 const int END = 3;
-// const int MAX_MOVES = 150;
-// int maze[ROW][COL];
-
 int** maze;
-
 int boolian = 1;
-
-    // void finisher(int currentRow, int currentCol, int ROW, int COL){
-    //         if(currentRow == ROW-2 && currentCol == COL-4)    maze[ROW-2][COL-3] = PATH;
-    //     else if(currentRow == ROW-3 && currentCol == COL-4)    maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
-    //     else if(currentRow == ROW-4 && currentCol == COL-4)    maze[ROW-3][COL-4] = maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
-    //     else if(currentRow == ROW-4 && currentCol == COL-3)    maze[ROW-3][COL-3] = maze[ROW-3][COL-2] = PATH;
-    //     else if(currentRow == ROW-4 && currentCol == COL-2)    maze[ROW-3][COL-2] = PATH;
-    //     boolian = 0;
-    // }
 
 void generateMaze(int row, int col) {
     int ROW = row;
@@ -58,7 +47,6 @@ void generateMaze(int row, int col) {
                     currentRow -= 2;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow+1][currentCol]=PATH; boolian=0;}
-                // if(currentRow >= ROW-4 && currentCol >= COL-4) finisher(currentRow,currentCol);
                 break;
             case 1: // Move down
                 if (currentRow < ROW - 3 && maze[currentRow + 2][currentCol] == WALL) {
@@ -67,7 +55,6 @@ void generateMaze(int row, int col) {
                     currentRow += 2;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow+1][currentCol]=PATH; boolian=0;}
-                // if(currentRow >= ROW - 4 && currentCol >= COL-4) finisher(currentRow,currentCol);
                 break;
             case 2: // Move left
                 if (currentCol > 2 && maze[currentRow][currentCol - 2] == WALL) {
@@ -76,7 +63,6 @@ void generateMaze(int row, int col) {
                     currentCol -= 2;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow][currentCol+1]=PATH; boolian=0;}
-                // if(currentRow >= ROW-4 && currentCol >= COL-4) finisher(currentRow,currentCol);
                 break;
             case 3: // Move right
                 if (currentCol < COL - 3 && maze[currentRow][currentCol + 2] == WALL) {
@@ -85,7 +71,6 @@ void generateMaze(int row, int col) {
                     currentCol += 2;
                 }
                 if((currentRow == ROW-3 && currentCol == COL-3) || (currentCol == ROW-3 && currentRow == COL-3)) {maze[currentRow][currentCol+1]=PATH; boolian=0;}
-                // if(currentRow >= ROW-4 && currentCol >= COL-4) finisher(currentRow,currentCol);
                 break;
         }
         moves++;
@@ -184,7 +169,8 @@ struct User {
     string name="anonymous";
     int score=1000;
     int endTime=0;
-    int startTime=0; 
+    int startTime=0;
+    int id=0; 
 };
 
 bool compareUsers(User a, User b) {
@@ -194,9 +180,10 @@ bool compareUsers(User a, User b) {
 
 int main() {
     srand(time(NULL));
-    User list[4];
+    vector<User> list;
     int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
     char move;
+    int menu;
     int ROW=14;
     int COL=14;
     cout << "Select difficulty: \n" << " 1) esay\n 2) medium\n 3) hard"<<endl;
@@ -205,6 +192,7 @@ int main() {
         case 1: ROW=10; COL=10; break;
         case 2: ROW=16; COL=16; break;
         case 3: ROW=20; COL=20; break;
+        default: cout<<"set difficul 14*14"; break;
     }
     int wallColor=12;
     int cursorColor=15;
@@ -212,6 +200,26 @@ int main() {
     cin >> wallColor;
     cout << " 2) Cursor Color (a num between 1-15 , now=15):" ;
     cin >> cursorColor;
+
+    // Load scores from file
+    FILE *file = fopen("scores.txt", "r");
+    if (file != NULL) {
+        char name[100];
+        int score, startTime, endTime, id;
+        while (fscanf(file, "%s %d %d %d %d\n", name, &score, &startTime, &endTime, &id) == 5) {
+            User newUser;
+            newUser.name = name;
+            newUser.score = score;
+            newUser.startTime = startTime;
+            newUser.endTime = endTime;
+            newUser.id = id;
+            
+            list.push_back(newUser);
+        }
+
+        fclose(file);
+    }
+
     while(1){
         system("cls");
         generateMaze(ROW,COL);
@@ -224,7 +232,7 @@ int main() {
             system("cls");
             printMaze(currentRow, currentCol, ROW, COL, wallColor, cursorColor);
             int arrow_key = getch();
-                 if(arrow_key == 'x' || arrow_key == 's') move = 'd';
+            if(arrow_key == 'x' || arrow_key == 's') move = 'd';
             else if(arrow_key == 'w') move = 'u';
             else if(arrow_key == 'd') move = 'r';
             else if(arrow_key == 'a') move = 'l';
@@ -255,39 +263,93 @@ int main() {
                     break;
                 case 'z': //d+l
                     if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL) { currentRow++; currentCol--; moves++; }
-                    break;    
+                    break; 
                 case 'c': //dr
                     if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL) { currentRow++; currentCol++; moves++; }
-                    break;    
+                    break; 
                 default:
                     cout << "Invalid move. Try again." << endl;
-                continue;
+                    continue;
             }
         }
 
         endTime = time(0);
         lengthTime = endTime - startTime;
         system("cls");
-        cout << "\n **** You won this game in " << lengthTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..."  << getch() <<endl;
+        cout << "\n **** You won this game in " << lengthTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..." << getch() <<endl;
         fflush(stdin);
         system("cls");
-        cout << "\n  Score : " << lengthTime <<"\n  Name : ";
-        order++;
-        if(order>3)order=3;
-        cin >> list[order].name;
-        list[order].score=lengthTime;
-        list[order].startTime=startTime;
-        list[order].endTime=endTime;
-        sort(list, list + 4, compareUsers);
+        cout << "\n Score : " << lengthTime <<"\n Name : ";
+        
+        User newUser;
+        cin >> newUser.name;
+        newUser.score=lengthTime;
+        newUser.startTime=startTime;
+        newUser.endTime=endTime;
+        newUser.id=startTime%10000;
+        
+
+        list.push_back(newUser);
+
+        sort(list.begin(), list.end(), compareUsers);
+
+        // Save scores to file
+        file = fopen("scores.txt", "w");
+        if (file == NULL) {
+            cout << "Error opening file" << endl;
+            exit(1);
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
+        }
+
+        fclose(file);
+
         system("cls");
         cout << "\n List of top 3 players:" << endl;
-        for (int i = 0; i < 3; i++) {
-            if(list[i].name == "anonymous" && list[i].score == 1000) cout << "  " << i+1 << ") " << endl;
-            else{cout << "  " << i+1 << ") " << list[i].name << ": " << list[i].score << endl;}
+        for (int i = 0; i < min(3, (int)list.size()); i++) {
+            cout << " " << i+1 << ") " << list[i].name << ": " << list[i].score << "    id: " << list[i].id << endl;;
         }
+        
+        string newName;
         cout << "\n If you want to exit the game, press zero(0), otherwise press any key to continue...";
-        if(getch() == '0') break;
+        cout << "\n menu:\n 1)continue\n 2)rename whit id\n 3)EXIT";
+        menu = getch()-48;
+        switch(menu){
+            case 1: break;
+            case 2:
+                int id;
+                cout << "\n Enter id: ";
+                cin >> id;
+                cout << " Enter new name: ";
+                cin >> newName;
+
+                for (int i = 0; i < list.size(); i++) {
+                    if (list[i].id == id) {
+                        list[i].name = newName;
+                        break;
+                    }
+                }
+
+                // Save scores to file
+                file = fopen("scores.txt", "w");
+                if (file == NULL) {
+                    cout << "Error opening file" << endl;
+                    exit(1);
+                }
+
+                for (int i = 0; i < list.size(); i++) {
+                    fprintf(file, "%s %d %d %d %d\n", list[i].name.c_str(), list[i].score, list[i].startTime, list[i].endTime, list[i].id);
+                }
+
+                fclose(file);
+                break;
+
+            case 3: system("cls"); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
+            default: cout<<"set difficul num 3 and Exit"; exit(0); break;
+        }
+
     }
-    system("cls");
-    cout<< "\n  **********  THE END   **********\n";
+    return 0;
 }
