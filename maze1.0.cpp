@@ -1,11 +1,11 @@
-#include <windows.h>
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <conio.h>
-#include <algorithm>
-#include <vector>
-#include <cstdlib>
+#include <windows.h> //GetStdHandle  //SetConsoleTextAttribute 
+#include <iostream>  //cin  //cout
+#include <cstdlib>  //rand //srand 
+#include <ctime>  //time 
+#include <conio.h>  //getch 
+#include <algorithm>  //sort  //min
+#include <vector>   //vector
+#include <iomanip>  //setw  //left
 using namespace std;
 
 const int WALL = 0;
@@ -132,8 +132,8 @@ void generateMaze(int row, int col) {
     
 }
 
+HANDLE col = GetStdHandle(STD_OUTPUT_HANDLE);
 void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, int cursorColor) {
-    HANDLE col = GetStdHandle(STD_OUTPUT_HANDLE);
     cout << endl;
     for (int i = 0; i < ROW; i++) {
         cout << "    ";
@@ -180,6 +180,7 @@ bool compareUsers(User a, User b) {
 
 int main() {
     srand(time(NULL));
+    system("cls");
     vector<User> list;
     int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
     char move;
@@ -231,15 +232,17 @@ int main() {
         while (maze[currentRow][currentCol] != END) {
             system("cls");
             printMaze(currentRow, currentCol, ROW, COL, wallColor, cursorColor);
+
+            //move
             int arrow_key = getch();
-            if(arrow_key == 'x' || arrow_key == 's') move = 'd';
-            else if(arrow_key == 'w') move = 'u';
-            else if(arrow_key == 'd') move = 'r';
-            else if(arrow_key == 'a') move = 'l';
-            else if(arrow_key == 'q') move = 'q'; //u+l
-            else if(arrow_key == 'e') move = 'e'; //u+r
-            else if(arrow_key == 'z') move = 'z'; //d+l
-            else if(arrow_key == 'c') move = 'c'; //d+r
+            if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
+            else if(arrow_key == 'w' || arrow_key == '8' || arrow_key == 72) move = 'u';
+            else if(arrow_key == 'd' || arrow_key == '6' || arrow_key == 77) move = 'r';
+            else if(arrow_key == 'a' || arrow_key == '4' || arrow_key == 75) move = 'l';
+            else if(arrow_key == 'q' || arrow_key == '7' ) move = 'q'; //u+l
+            else if(arrow_key == 'e' || arrow_key == '9' ) move = 'e'; //u+r
+            else if(arrow_key == 'z' || arrow_key == '1' ) move = 'z'; //d+l
+            else if(arrow_key == 'c' || arrow_key == '3' ) move = 'c'; //d+r
             fflush(stdin);
 
             switch(move) {
@@ -279,17 +282,35 @@ int main() {
         cout << "\n **** You won this game in " << lengthTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..." << getch() <<endl;
         fflush(stdin);
         system("cls");
-        cout << "\n Score : " << lengthTime <<"\n Name : ";
+        cout << "\n(The duration of the game*2 + the number of moves you have made in the game/2 = your score)\n Score : " << (lengthTime*2)+(moves/2) <<" \n Name : ";
         
         User newUser;
         cin >> newUser.name;
-        newUser.score=lengthTime;
+        newUser.score=(lengthTime*2)+(moves/2);
         newUser.startTime=startTime;
         newUser.endTime=endTime;
-        newUser.id=startTime%10000;
-        
 
-        list.push_back(newUser);
+        bool userExists = false;
+        for (int i = 0; i < list.size(); i++) {
+            if (list[i].name == newUser.name) {
+                userExists = true;
+                if (newUser.score < list[i].score) {
+                    list[i].score = newUser.score;
+                    list[i].startTime = newUser.startTime;
+                    list[i].endTime = newUser.endTime;
+                }
+                SetConsoleTextAttribute(col, 2);
+                cout << " Hi " << list[i].name << " your best score is " << list[i].score << " now.\n Press any key to continue..." << endl;
+                getch();
+                newUser.id = list[i].id;
+                break;
+            }
+        }
+
+        if (!userExists) {
+            newUser.id=startTime%10000;
+            list.push_back(newUser);
+        }
 
         sort(list.begin(), list.end(), compareUsers);
 
@@ -308,13 +329,14 @@ int main() {
 
         system("cls");
         cout << "\n List of top 3 players:" << endl;
-        for (int i = 0; i < min(3, (int)list.size()); i++) {
-            cout << " " << i+1 << ") " << list[i].name << ": " << list[i].score << "    id: " << list[i].id << endl;;
+        int numPlayers = (list.size() < 3) ? list.size() : 3;
+        for (int i = 0; i < numPlayers; i++) {
+            cout << left << setw(3) << " " << i+1 << ") " << setw(7) << list[i].name << ": " << setw(3) << list[i].score << " id: " << setw(4) << list[i].id << endl;
         }
+
         
         string newName;
-        cout << "\n If you want to exit the game, press zero(0), otherwise press any key to continue...";
-        cout << "\n menu:\n 1)continue\n 2)rename whit id\n 3)EXIT";
+        cout << "\n Menu:\n  1)Continue\n  2)Rename whit id\n  3)EXIT";
         menu = getch()-48;
         switch(menu){
             case 1: break;
@@ -346,10 +368,9 @@ int main() {
                 fclose(file);
                 break;
 
-            case 3: system("cls"); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
-            default: cout<<"set difficul num 3 and Exit"; exit(0); break;
+            case 3: system("cls"); SetConsoleTextAttribute(col, 13); cout<< "\n ********** THE END **********\n\n"; exit(0); break;
+            default: cout<<"Set difficul num 3 and Exit"; exit(0); break;
         }
-
     }
     return 0;
 }
