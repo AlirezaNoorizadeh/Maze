@@ -6,36 +6,35 @@
 #include <algorithm>
 using namespace std;
 
-
-const int ROW = 20;
-const int COL = 20;
 const int WALL = 0;
 const int PATH = 1;
 const int START = 2;
 const int END = 3;
-const int MAX_MOVES = 200;
+// const int MAX_MOVES = 150;
+// int maze[ROW][COL];
 
-int maze[ROW][COL];
+int** maze;
 
 int boolian = 1;
 
-// void finisher(int currentRow, int currentCol){
-//          if(currentRow == ROW-2 && currentCol == COL-4)    maze[ROW-2][COL-3] = PATH;
-//     else if(currentRow == ROW-3 && currentCol == COL-4)    maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
-//     else if(currentRow == ROW-4 && currentCol == COL-4)    maze[ROW-3][COL-4] = maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
-//     else if(currentRow == ROW-4 && currentCol == COL-3)    maze[ROW-3][COL-3] = maze[ROW-3][COL-2] = PATH;
-//     else if(currentRow == ROW-4 && currentCol == COL-2)    maze[ROW-3][COL-2] = PATH;
-//     boolian = 0;
-// }
-void finisher(int currentRow, int currentCol){
-         if(currentRow == ROW-2 && currentCol == COL-4)    maze[ROW-2][COL-3] = PATH;
-    else if(currentRow == ROW-3 && currentCol == COL-4)    maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
-    else if(currentRow == ROW-4 && currentCol == COL-4)    maze[ROW-3][COL-4] = maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
-    else if(currentRow == ROW-4 && currentCol == COL-3)    maze[ROW-3][COL-3] = maze[ROW-3][COL-2] = PATH;
-    else if(currentRow == ROW-4 && currentCol == COL-2)    maze[ROW-3][COL-2] = PATH;
-    boolian = 0;
-}
-void generateMaze() {
+    // void finisher(int currentRow, int currentCol, int ROW, int COL){
+    //         if(currentRow == ROW-2 && currentCol == COL-4)    maze[ROW-2][COL-3] = PATH;
+    //     else if(currentRow == ROW-3 && currentCol == COL-4)    maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
+    //     else if(currentRow == ROW-4 && currentCol == COL-4)    maze[ROW-3][COL-4] = maze[ROW-3][COL-3] = maze[ROW-2][COL-3] = PATH;
+    //     else if(currentRow == ROW-4 && currentCol == COL-3)    maze[ROW-3][COL-3] = maze[ROW-3][COL-2] = PATH;
+    //     else if(currentRow == ROW-4 && currentCol == COL-2)    maze[ROW-3][COL-2] = PATH;
+    //     boolian = 0;
+    // }
+
+void generateMaze(int row, int col) {
+    int ROW = row;
+    int COL = col;
+    int MAX_MOVES = row*10;
+    // Create dynamic 2D array
+    maze = new int*[row];
+    for (int i = 0; i < row; i++) {
+        maze[i] = new int[col];
+    }
     // maze walls
     for (int i = 0; i < ROW; i++) {
         for (int j = 0; j < COL; j++) {
@@ -135,7 +134,7 @@ void generateMaze() {
                 counter++;
                 break;
             case 3: // Move right
-                 if (currentCol < COL-4) {
+                if (currentCol < COL-4) {
                     maze[currentRow][currentCol + 1] = PATH;
                     maze[currentRow][currentCol + 2] = PATH;
                 }
@@ -148,20 +147,20 @@ void generateMaze() {
     
 }
 
-void printMaze(int currentRow, int currentCol) {
+void printMaze(int currentRow, int currentCol,int ROW, int COL, int wallColor, int cursorColor) {
     HANDLE col = GetStdHandle(STD_OUTPUT_HANDLE);
     cout << endl;
     for (int i = 0; i < ROW; i++) {
         cout << "    ";
         for (int j = 0; j < COL; j++) {
             if (i == currentRow && j == currentCol) {
-                SetConsoleTextAttribute(col, 15);
+                SetConsoleTextAttribute(col, cursorColor);
                 cout << "X ";
             } else {
                 switch(maze[i][j]) {
                     case WALL:
                         if(i == 0 || i == ROW-1 || j == 0 || j == ROW-1){SetConsoleTextAttribute(col, 7); cout << "O ";}
-                        else{SetConsoleTextAttribute(col, 12); cout << "# ";}
+                        else{SetConsoleTextAttribute(col, wallColor); cout << "# ";}
                         break;
                     case PATH:
                         cout << "  ";
@@ -184,6 +183,8 @@ void printMaze(int currentRow, int currentCol) {
 struct User {
     string name="anonymous";
     int score=1000;
+    int endTime=0;
+    int startTime=0; 
 };
 
 bool compareUsers(User a, User b) {
@@ -194,11 +195,26 @@ bool compareUsers(User a, User b) {
 int main() {
     srand(time(NULL));
     User list[4];
-    int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, endTime;
+    int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
     char move;
+    int ROW=14;
+    int COL=14;
+    cout << "Select difficulty: \n" << " 1) esay\n 2) medium\n 3) hard"<<endl;
+    int difficulty = getch()-48;
+    switch(difficulty){
+        case 1: ROW=10; COL=10; break;
+        case 2: ROW=16; COL=16; break;
+        case 3: ROW=20; COL=20; break;
+    }
+    int wallColor=12;
+    int cursorColor=15;
+    cout << "Select Color: \n" << " 1) Wall Color (a num between 1-15 , now=12):" ;
+    cin >> wallColor;
+    cout << " 2) Cursor Color (a num between 1-15 , now=15):" ;
+    cin >> cursorColor;
     while(1){
         system("cls");
-        generateMaze();
+        generateMaze(ROW,COL);
         startTime = time(0);
         currentRow = 1;
         currentCol = 1;
@@ -206,7 +222,7 @@ int main() {
 
         while (maze[currentRow][currentCol] != END) {
             system("cls");
-            printMaze(currentRow, currentCol);
+            printMaze(currentRow, currentCol, ROW, COL, wallColor, cursorColor);
             int arrow_key = getch();
                  if(arrow_key == 'x' || arrow_key == 's') move = 'd';
             else if(arrow_key == 'w') move = 'u';
@@ -249,16 +265,19 @@ int main() {
             }
         }
 
-        endTime = time(0) - startTime;
+        endTime = time(0);
+        lengthTime = endTime - startTime;
         system("cls");
-        cout << "\n **** You won this game in " << endTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..."  << getch() <<endl;
+        cout << "\n **** You won this game in " << lengthTime << " seconds and with " << moves << " moves! ****" << "\n Press any key to continue..."  << getch() <<endl;
         fflush(stdin);
         system("cls");
-        cout << "\n  Score : " << endTime <<"\n  Name : ";
+        cout << "\n  Score : " << lengthTime <<"\n  Name : ";
         order++;
         if(order>3)order=3;
         cin >> list[order].name;
-        list[order].score=endTime;
+        list[order].score=lengthTime;
+        list[order].startTime=startTime;
+        list[order].endTime=endTime;
         sort(list, list + 4, compareUsers);
         system("cls");
         cout << "\n List of top 3 players:" << endl;
@@ -272,5 +291,3 @@ int main() {
     system("cls");
     cout<< "\n  **********  THE END   **********\n";
 }
-
-// چه تغییری در برنامه ایجاد کنم تا بتوانم هرسری ابعاد بازی را تغیر دهم؟
