@@ -18,8 +18,6 @@ const int WALL = 0;
 const int PATH = 1;
 const int START = 2;
 const int END = 3;
-string fileName = "scores2.txt";
-string difficultyTypeName = "Normal";
 FILE *file;
 vector<User> list;
 
@@ -28,17 +26,13 @@ bool compareUsers(User a, User b) {
     else { return a.score < b.score; }
 }
 
-void setTypeOfDifficulty(){
-         if (fileName == "scores1.txt"){difficultyTypeName = "Esay";}
-    else if (fileName == "scores2.txt"){difficultyTypeName = "Normal";}
-    else if (fileName == "scores3.txt"){difficultyTypeName = "Hard";}
-}
-
 class Program {
 private:
     int** maze;
     int boolian = 1, ROW=14, COL=14, MAX_MOVES = ROW*10, wallColor=12, cursorColor=15, menu;
     int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
+    string fileName = "scores2.txt", difficultyTypeName = "Normal";
+
 public:
     void mainMenu();
     void Rename();
@@ -51,6 +45,7 @@ public:
     void mainBasic();
     void fileReader();
     void saveScores();
+    void setTypeOfDifficulty();
 };
 
 int main() {
@@ -395,7 +390,7 @@ void Program::mainMenu(){
         list.clear();
         fileReader();
         setTypeOfDifficulty();
-        cout << "\n menu:\n  1)Play\n  2)Rename\n  3)Set Difficulty\n  4)Set color\n  5)EXIT" <<endl;
+        cout << "\n menu:\n  1)Play\n  2)Rename\n  3)Difficulty("<< difficultyTypeName <<")\n  4)Set color\n  5)EXIT" <<endl;
         menu = getch()-48;
         switch(menu){
             case 1: main=false; break;
@@ -474,6 +469,7 @@ void Program::fileReader(){
         }
         fclose(file);
     }
+    sort(list.begin(), list.end(), compareUsers);
 }
 
 void Program::saveScores(){
@@ -488,4 +484,10 @@ void Program::saveScores(){
 void Program::setColor(int color) {
     fflush(stdin);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
+void Program::setTypeOfDifficulty(){
+         if (fileName == "scores1.txt"){difficultyTypeName = "Esay";}
+    else if (fileName == "scores2.txt"){difficultyTypeName = "Normal";}
+    else if (fileName == "scores3.txt"){difficultyTypeName = "Hard";}
 }
