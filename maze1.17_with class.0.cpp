@@ -18,12 +18,20 @@ const int WALL = 0;
 const int PATH = 1;
 const int START = 2;
 const int END = 3;
+string fileName = "scores2.txt";
+string difficultyTypeName = "Normal";
 FILE *file;
 vector<User> list;
 
 bool compareUsers(User a, User b) {
     if (a.score == b.score) { return a.name < b.name; }
     else { return a.score < b.score; }
+}
+
+void setTypeOfDifficulty(){
+         if (fileName == "scores1.txt"){difficultyTypeName = "Esay";}
+    else if (fileName == "scores2.txt"){difficultyTypeName = "Normal";}
+    else if (fileName == "scores3.txt"){difficultyTypeName = "Hard";}
 }
 
 class Program {
@@ -59,7 +67,7 @@ void Program::Moving(){
         printMaze();
         char move;
         int arrow_key = getch();
-                if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
+             if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
         else if(arrow_key == 'w' || arrow_key == '8' || arrow_key == 72) move = 'u';
         else if(arrow_key == 'd' || arrow_key == '6' || arrow_key == 77) move = 'r';
         else if(arrow_key == 'a' || arrow_key == '4' || arrow_key == 75) move = 'l';
@@ -149,7 +157,7 @@ void Program::mainBasic(){
         saveScores();
 
         system("cls");
-        cout << "\n List of top 3 players:" << endl;
+        cout << "\n List of top 3 players in the "<< difficultyTypeName <<" section:" << endl;
         int numPlayers = ((int)list.size() < 3) ? (int)list.size() : 3;
         for (int i = 0; i < numPlayers; i++) {
             cout << left << setw(3) << " " << i+1 << +") " << setw(7) << list[i].name << "    score: " << setw(3) << list[i].score << "  id: " << setw(4) << list[i].id << endl;
@@ -326,13 +334,14 @@ void Program::printMaze() {
 void Program::setDifficulty(){
     fflush(stdin);
     system("cls");
-    cout << "\n Select difficulty: \n" << "  1)Esay\n  2)Medium\n  3)Hard"<<endl;
+    list.clear();
+    cout << "\n Select difficulty: \n" << "  1)Esay\n  2)Normal\n  3)Hard"<<endl;
         int difficulty = getch()-48;
         switch(difficulty){
-            case 1: ROW=10; COL=10; break;
-            case 2: ROW=16; COL=16; break;
-            case 3: ROW=20; COL=20; break;
-            default: ROW=15; COL=15; cout<<"\n The difficulty remained in the default state "<<ROW<<"x"<<COL<<"\n press any key to continue..."; getch(); fflush(stdin); break;
+            case 1: ROW=10; COL=10; fileName = "scores1.txt"; break;
+            case 2: ROW=16; COL=16; fileName = "scores2.txt"; break;
+            case 3: ROW=20; COL=20; fileName = "scores3.txt"; break;
+            default: ROW=15; COL=15; fileName = "scores2.txt"; cout<<"\n The difficulty remained in the default state "<<ROW<<"x"<<COL<<"\n press any key to continue..."; getch(); fflush(stdin); break;
         }
 }
 
@@ -383,6 +392,9 @@ void Program::mainMenu(){
     while(main){
         fflush(stdin);
         system("cls");
+        list.clear();
+        fileReader();
+        setTypeOfDifficulty();
         cout << "\n menu:\n  1)Play\n  2)Rename\n  3)Set Difficulty\n  4)Set color\n  5)EXIT" <<endl;
         menu = getch()-48;
         switch(menu){
@@ -399,7 +411,7 @@ void Program::mainMenu(){
 void Program::Rename(){
     fflush(stdin);
     system("cls");
-    cout << "\n List of all players:" << endl;
+    cout << "\n List of all players in the "<< difficultyTypeName <<" section:" << endl;
     for (int i = 0; i < (int)list.size(); i++) {
         cout << left << setw(3) << " " << i+1 << +") " << setw(8) << list[i].name << "   score: " << setw(3) << list[i].score << "  id: " << setw(4) << list[i].id << endl;
     }
@@ -448,7 +460,7 @@ void Program::Rename(){
 void Program::fileReader(){
     fflush(stdin);
     // Load scores from file
-    file = fopen("scores.txt", "r");
+    file = fopen(fileName.c_str(), "r");
     if (file != NULL) {
         char name[100];
         int score, id;
@@ -466,7 +478,7 @@ void Program::fileReader(){
 
 void Program::saveScores(){
     fflush(stdin);
-    file = fopen("scores.txt", "w");
+    file = fopen(fileName.c_str(), "w");
     for (int i = 0; i < (int)list.size(); i++) {
         fprintf(file, "%s %d %d\n", list[i].name.c_str(), list[i].score, list[i].id);
     }
