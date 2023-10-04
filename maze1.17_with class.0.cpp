@@ -18,27 +18,90 @@ const int WALL = 0;
 const int PATH = 1;
 const int START = 2;
 const int END = 3;
-int** maze;
-int boolian = 1, ROW=14, COL=14, MAX_MOVES = ROW*10, wallColor=12, cursorColor=15, menu;
-int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
 FILE *file;
 vector<User> list;
 
-void Rename();
-void mainMenu();
-void saveScores();
-void fileReader();
-void colorSeter();
-void setDifficulty();
-void setColor(int color);
-bool compareUsers(User a, User b);
-void generateMaze();
-void printMaze();
+bool compareUsers(User a, User b) {
+    if (a.score == b.score) { return a.name < b.name; }
+    else { return a.score < b.score; }
+}
+
+class Program {
+private:
+    int** maze;
+    int boolian = 1, ROW=14, COL=14, MAX_MOVES = ROW*10, wallColor=12, cursorColor=15, menu;
+    int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
+public:
+    void mainMenu();
+    void Rename();
+    void colorSeter();
+    void setDifficulty();
+    void setColor(int color);
+    void generateMaze();
+    void printMaze();
+    void Moving();
+    void mainBasic();
+    void fileReader();
+    void saveScores();
+};
 
 int main() {
     srand(time(NULL));
-    fileReader();
-    
+    Program program;
+    program.fileReader();
+    program.mainBasic();
+    return 0;
+}
+
+void Program::Moving(){
+    while (maze[currentRow][currentCol] != END) {
+        system("cls");
+        printMaze();
+        char move;
+        int arrow_key = getch();
+                if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
+        else if(arrow_key == 'w' || arrow_key == '8' || arrow_key == 72) move = 'u';
+        else if(arrow_key == 'd' || arrow_key == '6' || arrow_key == 77) move = 'r';
+        else if(arrow_key == 'a' || arrow_key == '4' || arrow_key == 75) move = 'l';
+        else if(arrow_key == 'q' || arrow_key == '7' ) move = 'q'; //u+l
+        else if(arrow_key == 'e' || arrow_key == '9' ) move = 'e'; //u+r
+        else if(arrow_key == 'z' || arrow_key == '1' ) move = 'z'; //d+l
+        else if(arrow_key == 'c' || arrow_key == '3' ) move = 'c'; //d+r
+        fflush(stdin);
+
+        switch(move) {
+            case 'u': 
+                if (currentRow > 1 && maze[currentRow - 1][currentCol] != WALL) { currentRow--; moves++; }
+                break;
+            case 'd':
+                if (currentRow < ROW - 2 && maze[currentRow + 1][currentCol] != WALL) { currentRow++; moves++; }
+                break;
+            case 'l':
+                if (currentCol > 1 && maze[currentRow][currentCol - 1] != WALL) { currentCol--; moves++; }
+                break;
+            case 'r':
+                if (currentCol < COL - 2 && maze[currentRow][currentCol + 1] != WALL) { currentCol++; moves++; }
+                break;
+            case 'q': //u+l
+                if (currentRow > 1 && currentCol > 1 && maze[currentRow-1][currentCol-1] != WALL) { currentRow--; currentCol--; moves++; }
+                break;
+            case 'e': //u+r
+                if (currentRow > 1 && currentCol < COL - 2 && maze[currentRow-1][currentCol+1] != WALL) { currentRow--; currentCol++; moves++; }
+                break;
+            case 'z': //d+l
+                if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL) { currentRow++; currentCol--; moves++; }
+                break; 
+            case 'c': //dr
+                if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL) { currentRow++; currentCol++; moves++; }
+                break; 
+            default:
+                cout << "Invalid move. Try again." << endl;
+                break;
+        }
+    }
+}
+
+void Program::mainBasic(){
     while(1){
         mainMenu();
         system("cls");
@@ -47,52 +110,7 @@ int main() {
         currentRow = 1;
         currentCol = 1;
         moves = 0;
-
-        while (maze[currentRow][currentCol] != END) {
-            system("cls");
-            printMaze();
-            char move;
-            int arrow_key = getch();
-                 if(arrow_key == 'x' || arrow_key == 's' || arrow_key== '2' || arrow_key=='5' || arrow_key == 80) move = 'd';
-            else if(arrow_key == 'w' || arrow_key == '8' || arrow_key == 72) move = 'u';
-            else if(arrow_key == 'd' || arrow_key == '6' || arrow_key == 77) move = 'r';
-            else if(arrow_key == 'a' || arrow_key == '4' || arrow_key == 75) move = 'l';
-            else if(arrow_key == 'q' || arrow_key == '7' ) move = 'q'; //u+l
-            else if(arrow_key == 'e' || arrow_key == '9' ) move = 'e'; //u+r
-            else if(arrow_key == 'z' || arrow_key == '1' ) move = 'z'; //d+l
-            else if(arrow_key == 'c' || arrow_key == '3' ) move = 'c'; //d+r
-            fflush(stdin);
-
-            switch(move) {
-                case 'u': 
-                    if (currentRow > 1 && maze[currentRow - 1][currentCol] != WALL) { currentRow--; moves++; }
-                    break;
-                case 'd':
-                    if (currentRow < ROW - 2 && maze[currentRow + 1][currentCol] != WALL) { currentRow++; moves++; }
-                    break;
-                case 'l':
-                    if (currentCol > 1 && maze[currentRow][currentCol - 1] != WALL) { currentCol--; moves++; }
-                    break;
-                case 'r':
-                    if (currentCol < COL - 2 && maze[currentRow][currentCol + 1] != WALL) { currentCol++; moves++; }
-                    break;
-                case 'q': //u+l
-                    if (currentRow > 1 && currentCol > 1 && maze[currentRow-1][currentCol-1] != WALL) { currentRow--; currentCol--; moves++; }
-                    break;
-                case 'e': //u+r
-                    if (currentRow > 1 && currentCol < COL - 2 && maze[currentRow-1][currentCol+1] != WALL) { currentRow--; currentCol++; moves++; }
-                    break;
-                case 'z': //d+l
-                    if (currentRow < ROW - 2 && currentCol > 1 && maze[currentRow+1][currentCol-1] != WALL) { currentRow++; currentCol--; moves++; }
-                    break; 
-                case 'c': //dr
-                    if (currentRow < ROW - 2 && currentCol < COL - 2 && maze[currentRow+1][currentCol+1] != WALL) { currentRow++; currentCol++; moves++; }
-                    break; 
-                default:
-                    cout << "Invalid move. Try again." << endl;
-                    break;
-            }
-        }
+        Moving();
 
         endTime = time(0);
         lengthTime = endTime - startTime;
@@ -139,10 +157,9 @@ int main() {
 
         cout << "\n Press any key to return to the menu..." << getch() << fflush(stdin); 
     }
-    return 0;
 }
 
-void generateMaze() {
+void Program::generateMaze() {
     fflush(stdin);
     // Create dynamic 2D array
     maze = new int*[ROW];
@@ -268,9 +285,10 @@ void generateMaze() {
     
 }
 
-void printMaze() {
+void Program::printMaze() {
     fflush(stdin);
-    cout << endl;
+    // cout << "Use Q,W,E   ↖↑↗ for move to 8 side\n    A,S,D = ←↓→\n    Z,X,C   ↙↓↘"  << endl << endl;
+    cout << "Make sure your keyboard is in English\nUse Q,W,E for move to 8 side\n    A,S,D \n    Z,X,C"  << endl << endl;
     for (int i = 0; i < ROW; i++) {
         cout << "    ";
         for (int j = 0; j < COL; j++) {
@@ -303,12 +321,9 @@ void printMaze() {
     }
 }
 
-bool compareUsers(User a, User b) {
-    if (a.score == b.score) { return a.name < b.name; }
-    else { return a.score < b.score; }
-}
 
-void setDifficulty(){
+
+void Program::setDifficulty(){
     fflush(stdin);
     system("cls");
     cout << "\n Select difficulty: \n" << "  1)Esay\n  2)Medium\n  3)Hard"<<endl;
@@ -321,7 +336,7 @@ void setDifficulty(){
         }
 }
 
-void colorSeter(){
+void Program::colorSeter(){
     fflush(stdin);
     system("cls");
     for (int col_code = 1; col_code < 256; col_code++) {
@@ -361,7 +376,7 @@ void colorSeter(){
     }
 }
 
-void mainMenu(){
+void Program::mainMenu(){
     fflush(stdin);
     setColor(7);
     bool main = true;
@@ -381,7 +396,7 @@ void mainMenu(){
     }
 }
 
-void Rename(){
+void Program::Rename(){
     fflush(stdin);
     system("cls");
     cout << "\n List of all players:" << endl;
@@ -430,7 +445,7 @@ void Rename(){
     saveScores();
 }
 
-void fileReader(){
+void Program::fileReader(){
     fflush(stdin);
     // Load scores from file
     file = fopen("scores.txt", "r");
@@ -449,7 +464,7 @@ void fileReader(){
     }
 }
 
-void saveScores(){
+void Program::saveScores(){
     fflush(stdin);
     file = fopen("scores.txt", "w");
     for (int i = 0; i < (int)list.size(); i++) {
@@ -458,7 +473,7 @@ void saveScores(){
     fclose(file);
 }
 
-void setColor(int color) {
+void Program::setColor(int color) {
     fflush(stdin);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
