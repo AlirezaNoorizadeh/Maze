@@ -1,12 +1,11 @@
-#include <windows.h>  //GetStdHandle  //setColor
+#include "head1.h"
+
 #include <algorithm>  //sort  //min
-#include <iostream>   //cin   //cout
 #include <conio.h>    //getch
 #include <cstdlib>    //rand  //srand
 #include <iomanip>    //setw  //left
 #include <vector>     //vector
 #include <ctime>      //time
-using namespace std;
 
 struct User {
     string name="anonymous";
@@ -24,36 +23,6 @@ vector<User> list;
 bool compareUsers(User a, User b) {
     if (a.score == b.score) { return a.name < b.name; }
     else { return a.score < b.score; }
-}
-
-class Program {
-private:
-    int** maze;
-    int boolian = 1, ROW=14, COL=14, MAX_MOVES = ROW*10, wallColor=12, cursorColor=15, menu;
-    int order=-1, startTime=time(0), currentRow=1, currentCol=1, moves=0, lengthTime, endTime;
-    string fileName = "scores2.txt", difficultyTypeName = "Normal";
-
-public:
-    void mainMenu();
-    void Rename();
-    void colorSeter();
-    void setDifficulty();
-    void setColor(int color);
-    void generateMaze();
-    void printMaze();
-    void Moving();
-    void mainBasic();
-    void fileReader();
-    void saveScores();
-    void setTypeOfDifficulty();
-};
-
-int main() {
-    srand(time(NULL));
-    Program program;
-    program.fileReader();
-    program.mainBasic();
-    return 0;
 }
 
 void Program::Moving(){
